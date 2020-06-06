@@ -7,11 +7,13 @@ It is what I could come up with after working on a home assignment for ~15 hours
 # Building and Running
 
 1. Start the server `./mvnw spring-boot:run` (or in remote debug mode 
-   `./mvnw spring-boot:run -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"`)
-2. Connect with a WebSocket client, for instance 
+   `./mvnw spring-boot:run -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"`).
+2. Connect to _ws://localhost:8080/chat_ with a WebSocket client, for instance 
    [this](https://chrome.google.com/webstore/detail/websocket-test-client/fgponpodhbmadfljofbimhhlengambbn) 
    Chrome extension.
 3. Start issuing commands and receiving messages.
+
+This example works over a network. Obviously, the server must be reachable from all machines what want to participate. 
 
 # Supported commands
 
