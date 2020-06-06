@@ -1,23 +1,32 @@
 # Introduction
 
 Simple room chat application based on WebSocket, with public room conversations and private direct messages.
+It is what I could come up with after working on this home assignment for ~15 hours.
 
-It is what I could come up with after working on a home assignment for ~15 hours. 
+Java 8+ is required.
 
 # Building and Running
 
-1. Start the server `./mvnw spring-boot:run` (or in remote debug mode 
-   `./mvnw spring-boot:run -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"`).
-2. Connect to _ws://localhost:8080/chat_ with a WebSocket client, for instance 
-   [this](https://chrome.google.com/webstore/detail/websocket-test-client/fgponpodhbmadfljofbimhhlengambbn) 
-   Chrome extension.
-3. Start issuing commands and receiving messages.
+1. Start the server
+    - either normally: `./mvnw spring-boot:run`
+    - or in remote debug mode: `./mvnw spring-boot:run
+    -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"`
 
-This example works over a network. Obviously, the server must be reachable from all machines what want to participate. 
+2. Connect to `ws://localhost:8080/chat` using a WebSocket client, for instance 
+   [this simple Chrome extension](https://chrome.google.com/webstore/detail/websocket-test-client/fgponpodhbmadfljofbimhhlengambbn).
+
+3. Start issuing text commands to send and receive messages.
+
+This example works over a network. Obviously, for this to work the server must be reachable from all machines that
+want to exchange messages.
 
 # Supported commands
 
 This chat uses simple text commands that are easy to type.
+
+**WARNING:** Command arguments may contain letters, digits, spaces, and punctuation marks,
+             but _not_ forward slashed (/). Forward slashes are reserved for command names and
+             parameter keys.
 
 - /user _name_ - create a new user
 - /room _name_ /as _user_ - create a chat room, the user automatically joins the room
@@ -25,7 +34,7 @@ This chat uses simple text commands that are easy to type.
 - /chats _user_ - list user's conversations in a room
 - /messages _chat_ /as _user_ - show all messages in a chat
 - /pub _text_ /in _room_ /as _user_ - send a public message to a chat room
-- /send _text_ /in _room_ /to _peer_ /as _user_ - send a direct message to another participant 
+- /send _text_ /in _room_ /to _peer_ /as _user_ - send a direct message to another participant
 
 # Constraints
 
@@ -35,8 +44,8 @@ This chat uses simple text commands that are easy to type.
 
 # Sample execution
 
-*NOTE:* Keep in mind that here both _alice_ and _bob_ are using the same connection, therefore we can see all messages
-        they exchange between them.
+**NOTE:** Keep in mind that here both _alice_ and _bob_ are using the same connection, therefore we can see all messages
+          they exchange between them.
 
 ```
 /join My room
@@ -139,10 +148,14 @@ ABOUT:	Public in room "My room"
 # TODO
 
 - Tests, tests, tests
+- Test concurrency (race conditions)
+- Fix the TODOs in the code
 - Authentication
 - Make it reactive (e.g. using WebFlux)
+- Add persistent storage for rooms/messages/users
 
-This functionality could be nice to have:
+The following functionality could be nice to have, although it was not required by the assignment:
 
 - A user can leave a chat room.
-- A user can see who has joined the room.
+- A user can see which rooms she is a member of.
+- A user can see who has joined a room she is a member of.

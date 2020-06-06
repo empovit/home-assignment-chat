@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Scope("prototype")
-public class Room {
+public class RoomBroker {
 
     private final Map<String, FanOut> connectionsByUser = new ConcurrentHashMap<>();
 
@@ -29,7 +29,7 @@ public class Room {
     @Autowired
     private MessageFormatter formatter;
 
-    public Room(String name) {
+    public RoomBroker(String name) {
 
         if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("Room name must be specified");

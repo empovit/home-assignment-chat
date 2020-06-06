@@ -11,7 +11,7 @@ import java.util.Map;
 @Component
 public class RoomRegistry {
 
-    private static final Map<String, Room> rooms = new HashMap<>();
+    private static final Map<String, RoomBroker> rooms = new HashMap<>();
 
     @Autowired
     private ApplicationContext context;
@@ -26,16 +26,16 @@ public class RoomRegistry {
             throw new IllegalArgumentException("Room already exists: " + name);
         }
 
-        rooms.put(name, context.getBean(Room.class, name));
+        rooms.put(name, context.getBean(RoomBroker.class, name));
     }
 
-    public synchronized Room get(String name) {
+    public synchronized RoomBroker get(String name) {
 
         if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("Room name must be specified");
         }
 
-        Room room = rooms.get(name);
+        RoomBroker room = rooms.get(name);
         if (room == null) {
             throw new IllegalArgumentException("Room not found: " + name);
         }
@@ -46,7 +46,7 @@ public class RoomRegistry {
     public synchronized void removeSession(WebSocketSession session) {
 
         // TODO: Can be optimized by tracking all rooms for a session
-        for (Room r : rooms.values()) {
+        for (RoomBroker r : rooms.values()) {
             r.disconnect(session);
         }
     }
