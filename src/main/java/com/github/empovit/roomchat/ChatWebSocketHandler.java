@@ -1,42 +1,41 @@
 package com.github.empovit.roomchat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.empovit.roomchat.conversations.Message;
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketMessage;
-import org.springframework.web.reactive.socket.WebSocketSession;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.time.Duration;
+import java.io.IOException;
 
-import static java.time.LocalDateTime.now;
-import static java.util.UUID.randomUUID;
+public class ChatWebSocketHandler extends TextWebSocketHandler {
 
-@Component("ChatWebSocketHandler")
-public class ChatWebSocketHandler implements WebSocketHandler {
+    private final Logger logger = LoggerFactory.getLogger(ChatWebSocketHandler.class);
 
-    private static final ObjectMapper json = new ObjectMapper();
+    @Autowired
+    private ChatDispatcher dispatcher;
 
-    private final Flux<String> eventFlux = Flux.generate(sink -> {
-        Message event = new Message(randomUUID().toString(), now().toString(), null);
-        try {
-            sink.next(json.writeValueAsString(event));
-        } catch (JsonProcessingException e) {
-            sink.error(e);
-        }
-    });
+    @Value("${session.send.time.limit:2000}")
+    private int sendTimeLimit;
 
-    private final Flux<String> intervalFlux = Flux.interval(Duration.ofMillis(1000L))
-            .zipWith(eventFlux, (time, event) -> event);
+    @Value("${session.buffer.size.limit:1000}")
+    private int bufferSizeLimit;
 
     @Override
-    public Mono<Void> handle(WebSocketSession webSocketSession) {
-        return webSocketSession.send(intervalFlux
-                .map(webSocketSession::textMessage))
-                .and(webSocketSession.receive()
-                        .map(WebSocketMessage::getPayloadAsText).log());
+    public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
+
+        WebSocketSession concurrentSession =
+                new ConcurrentWebSocketSessionDecorator(session, sendTimeLimit, bufferSizeLimit);
+
+        try {
+            dispatcher.dispatch(concurrentSession, message.getPayload());
+            concurrentSession.sendMessage(new TextMessage("SUCCESS"));
+        } catch (Exception e) {
+            logger.error("Failed to dispatch a command", e);
+            concurrentSession.sendMessage(new TextMessage("ERROR: " + e.getMessage()));
+        }
     }
 }

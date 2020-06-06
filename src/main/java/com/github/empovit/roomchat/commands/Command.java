@@ -5,7 +5,9 @@ import lombok.Data;
 
 import java.util.Map;
 
+@Data
 @AllArgsConstructor
 public class Command {
-    private Map<String, String> attributes;
+    private final String command;
+    private final Map<String, String> attributes;
 }

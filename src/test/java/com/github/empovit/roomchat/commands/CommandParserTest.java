@@ -10,19 +10,19 @@ class CommandParserTest {
 
     @Test
     public void whenCommandHasOneElementItIsParsed() {
-        Map<String, String> commands = new CommandParser().parse("/hello world");
+        Map<String, String> commands = new CommandParser().parse("/hello world").getAttributes();
         assertEquals(1, commands.size());
     }
 
     @Test
     public void whenCommandHasTwoElementsTheyAreParsed() {
-        Map<String, String> commands = new CommandParser().parse("/hello world /and bye");
+        Map<String, String> commands = new CommandParser().parse("/hello world /and bye").getAttributes();
         assertEquals(2, commands.size());
     }
 
     @Test
     public void whenCommandIsEmptyThrowError() {
-        assertThrows(IllegalArgumentException.class, () -> new CommandParser().parse(""));
+        assertThrows(IllegalArgumentException.class, () -> new CommandParser().parse("").getAttributes());
     }
 
     @Test

@@ -1,38 +1,23 @@
 package com.github.empovit.roomchat;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.web.reactive.HandlerMapping;
-import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
-import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 @Configuration
-public class RoomChatConfiguration {
+@EnableWebSocket
+public class RoomChatConfiguration implements WebSocketConfigurer {
 
-    @Autowired
-    @Qualifier("ChatWebSocketHandler")
-    private WebSocketHandler webSocketHandler;
-
-    @Bean
-    public HandlerMapping webSocketHandlerMapping() {
-        Map<String, WebSocketHandler> map = new HashMap<>();
-        map.put("/chat", webSocketHandler);
-
-        SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
-        handlerMapping.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        handlerMapping.setUrlMap(map);
-        return handlerMapping;
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(chatHandler(), "/chat").setAllowedOrigins("*");;
     }
 
     @Bean
-    public WebSocketHandlerAdapter handlerAdapter() {
-        return new WebSocketHandlerAdapter();
+    public WebSocketHandler chatHandler() {
+        return new ChatWebSocketHandler();
     }
 }
