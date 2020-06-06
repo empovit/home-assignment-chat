@@ -1,9 +1,11 @@
 package com.github.empovit.roomchat;
 
+import com.github.empovit.roomchat.room.MessageFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
@@ -17,6 +19,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Autowired
     private ChatDispatcher dispatcher;
+
+    @Autowired
+    private MessageFormatter formatter;
 
     @Value("${session.send.time.limit:2000}")
     private int sendTimeLimit;
@@ -32,10 +37,14 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         try {
             dispatcher.dispatch(concurrentSession, message.getPayload());
-            concurrentSession.sendMessage(new TextMessage("SUCCESS"));
         } catch (Exception e) {
             logger.error("Failed to dispatch a command", e);
-            concurrentSession.sendMessage(new TextMessage("ERROR: " + e.getMessage()));
+            concurrentSession.sendMessage(formatter.error(e));
         }
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        dispatcher.disconnect(session, status);
     }
 }

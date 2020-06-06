@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -17,11 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RoomChatDispatcher implements ChatDispatcher {
 
     private final Logger logger = LoggerFactory.getLogger(RoomChatDispatcher.class);
-
+    private final Map<String, CommandHandler> handlers = new ConcurrentHashMap<>(); // Can probably be thread-unsafe
     @Autowired
     private CommandParser parser;
-
-    private Map<String, CommandHandler> handlers = new ConcurrentHashMap<>();
 
     @Autowired
     public void registerHandlers(List<CommandHandler> wiredHandlers) {
@@ -44,5 +43,13 @@ public class RoomChatDispatcher implements ChatDispatcher {
         }
 
         handler.handle(session, command);
+    }
+
+    @Override
+    public void disconnect(WebSocketSession session, CloseStatus status) {
+
+        for (CommandHandler handler : handlers.values()) {
+            handler.disconnect(session, status);
+        }
     }
 }

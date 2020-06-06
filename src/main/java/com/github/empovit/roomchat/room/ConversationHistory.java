@@ -12,9 +12,13 @@ import java.util.List;
 @Scope("prototype")
 public class ConversationHistory {
 
-    private final List<Message> messages = Collections.synchronizedList(new LinkedList<>());
+    private final List<Message> publicMessages = Collections.synchronizedList(new LinkedList<>());
 
     public void publish(Message message) {
-        messages.add(message);
+        publicMessages.add(message);
+    }
+
+    public void send(Message message) {
+
     }
 }

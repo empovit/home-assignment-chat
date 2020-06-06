@@ -5,7 +5,7 @@ Simple room chat application based on WebSocket, with public room conversations 
 # Building and Running
 
 1. Start the server `./mvnw spring-boot:run` (or in remote debug mode 
-   `./mvnw spring-boot:run -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"`)
+   `./mvnw spring-boot:run -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"`)
 2. Connect with a WebSocket client, for instance 
    [this](https://chrome.google.com/webstore/detail/websocket-test-client/fgponpodhbmadfljofbimhhlengambbn) 
    Chrome extension.
@@ -30,6 +30,7 @@ Constraints:
 
 Nice to have:
 - A user can leave a chat room.
+- A user can see who has joined the room.
 
 
 

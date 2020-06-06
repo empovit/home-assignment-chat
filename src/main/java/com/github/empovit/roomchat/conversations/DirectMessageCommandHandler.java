@@ -1,17 +1,17 @@
-package com.github.empovit.roomchat.room;
+package com.github.empovit.roomchat.conversations;
 
 import com.github.empovit.roomchat.commands.Command;
 import com.github.empovit.roomchat.commands.CommandHandler;
+import com.github.empovit.roomchat.room.RoomRegistry;
 import com.github.empovit.roomchat.user.UserRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Map;
 
 @Component
-public class JoinRoomCommandHandler implements CommandHandler {
+public class DirectMessageCommandHandler implements CommandHandler {
 
     @Autowired
     private RoomRegistry rooms;
@@ -21,19 +21,16 @@ public class JoinRoomCommandHandler implements CommandHandler {
 
     @Override
     public String getCommandName() {
-        return "join";
+        return "send";
     }
 
     @Override
     public void handle(WebSocketSession session, Command command) {
         Map<String, String> attributes = command.getAttributes();
-        String roomName = attributes.get(getCommandName());
+        String text = attributes.get(getCommandName());
+        String roomName = attributes.get("in");
         String userName = users.verifyUser(attributes);
-        rooms.get(roomName).join(userName, session);
-    }
-
-    @Override
-    public void disconnect(WebSocketSession session, CloseStatus status) {
-        rooms.removeSession(session);
+        String recipient = attributes.get("to");
+        rooms.get(roomName).send(userName, recipient, text);
     }
 }

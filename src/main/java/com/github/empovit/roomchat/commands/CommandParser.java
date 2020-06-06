@@ -31,7 +31,7 @@ public class CommandParser {
                 command = matcher.group(1);
             }
 
-            attributes.put(matcher.group(1), matcher.group(2));
+            attributes.put(matcher.group(1), matcher.group(2).trim());
         }
 
         if (attributes.isEmpty()) {
