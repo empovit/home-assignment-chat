@@ -1,4 +1,4 @@
-package com.github.empovit.roomchat.room;
+package com.github.empovit.roomchat.rooms;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -12,6 +12,7 @@ import java.util.Map;
 public class RoomRegistry {
 
     private static final Map<String, Room> rooms = new HashMap<>();
+
     @Autowired
     private ApplicationContext context;
 
@@ -29,6 +30,10 @@ public class RoomRegistry {
     }
 
     public synchronized Room get(String name) {
+
+        if (name == null || name.length() == 0) {
+            throw new IllegalArgumentException("Room name must be specified");
+        }
 
         Room room = rooms.get(name);
         if (room == null) {

@@ -1,6 +1,7 @@
 package com.github.empovit.roomchat;
 
-import com.github.empovit.roomchat.room.MessageFormatter;
+import com.github.empovit.roomchat.commands.CommandDispatcher;
+import com.github.empovit.roomchat.messages.MessageFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final Logger logger = LoggerFactory.getLogger(ChatWebSocketHandler.class);
 
     @Autowired
-    private ChatDispatcher dispatcher;
+    private CommandDispatcher dispatcher;
 
     @Autowired
     private MessageFormatter formatter;
@@ -36,7 +37,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 new ConcurrentWebSocketSessionDecorator(session, sendTimeLimit, bufferSizeLimit);
 
         try {
+
             dispatcher.dispatch(concurrentSession, message.getPayload());
+
+        } catch (NullPointerException e) {
+            logger.error("NullPointerException ", e);
+            concurrentSession.sendMessage(formatter.error(
+                    new IllegalArgumentException("This is embarrassing, we've got a NPE :(")));
+        } catch (IllegalArgumentException e) {
+            logger.warn("User error: " + e.getMessage());
+            concurrentSession.sendMessage(formatter.error(e));
         } catch (Exception e) {
             logger.error("Failed to dispatch a command", e);
             concurrentSession.sendMessage(formatter.error(e));
@@ -44,7 +54,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         dispatcher.disconnect(session, status);
     }
 }

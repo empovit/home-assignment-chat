@@ -1,8 +1,9 @@
-package com.github.empovit.roomchat.room;
+package com.github.empovit.roomchat.rooms;
 
+import com.github.empovit.roomchat.commands.CallerIdentity;
 import com.github.empovit.roomchat.commands.Command;
 import com.github.empovit.roomchat.commands.CommandHandler;
-import com.github.empovit.roomchat.user.UserRegistry;
+import com.github.empovit.roomchat.users.UserRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
@@ -18,6 +19,9 @@ public class CreateRoomCommandHandler implements CommandHandler {
     @Autowired
     private UserRegistry users;
 
+    @Autowired
+    private CallerIdentity identity;
+
     @Override
     public String getCommandName() {
         return "room";
@@ -28,7 +32,9 @@ public class CreateRoomCommandHandler implements CommandHandler {
 
         Map<String, String> attributes = command.getAttributes();
         String roomName = attributes.get(getCommandName());
-        String userName = users.verifyUser(attributes);
+
+        String userName = identity.getCaller(attributes);
+        users.verifyUser(userName);
 
         rooms.add(roomName);
         rooms.get(roomName).join(userName, session);

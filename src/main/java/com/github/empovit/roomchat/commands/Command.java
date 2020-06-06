@@ -1,12 +1,13 @@
 package com.github.empovit.roomchat.commands;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
 import java.util.Map;
 
-@Data
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
+@Getter
 public class Command {
     private final String command;
     private final Map<String, String> attributes;
