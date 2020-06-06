@@ -1,0 +1,42 @@
+package com.github.empovit.roomchat;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.empovit.roomchat.conversations.Message;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.WebSocketMessage;
+import org.springframework.web.reactive.socket.WebSocketSession;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+
+import static java.time.LocalDateTime.now;
+import static java.util.UUID.randomUUID;
+
+@Component("ChatWebSocketHandler")
+public class ChatWebSocketHandler implements WebSocketHandler {
+
+    private static final ObjectMapper json = new ObjectMapper();
+
+    private final Flux<String> eventFlux = Flux.generate(sink -> {
+        Message event = new Message(randomUUID().toString(), now().toString(), null);
+        try {
+            sink.next(json.writeValueAsString(event));
+        } catch (JsonProcessingException e) {
+            sink.error(e);
+        }
+    });
+
+    private final Flux<String> intervalFlux = Flux.interval(Duration.ofMillis(1000L))
+            .zipWith(eventFlux, (time, event) -> event);
+
+    @Override
+    public Mono<Void> handle(WebSocketSession webSocketSession) {
+        return webSocketSession.send(intervalFlux
+                .map(webSocketSession::textMessage))
+                .and(webSocketSession.receive()
+                        .map(WebSocketMessage::getPayloadAsText).log());
+    }
+}
