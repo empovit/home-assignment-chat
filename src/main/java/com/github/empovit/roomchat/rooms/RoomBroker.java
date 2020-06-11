@@ -156,6 +156,7 @@ public class RoomBroker {
 
         public void deliver(WebSocketMessage<?> wsMessage) {
 
+            // Make asynchronous, parallelize fanning-out messages (thread pool?)
             for (Map.Entry<String, WebSocketSession> stringWebSocketSessionEntry : sessions.entrySet()) {
 
                 WebSocketSession session = stringWebSocketSessionEntry.getValue();

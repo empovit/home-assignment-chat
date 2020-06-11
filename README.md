@@ -25,7 +25,7 @@ want to exchange messages.
 This chat uses simple text commands that are easy to type.
 
 **WARNING:** Command arguments may contain letters, digits, spaces, and punctuation marks,
-             but _not_ forward slashed (/). Forward slashes are reserved for command names and
+             but _not_ forward slashes (/). Forward slashes are reserved for command names and
              parameter keys.
 
 - /user _name_ - create a new user
@@ -148,6 +148,7 @@ ABOUT:	Public in room "My room"
 # TODO
 
 - Tests, tests, tests
+- Parallelize operations where possible 
 - Test concurrency (race conditions)
 - Fix the TODOs in the code
 - Authentication
